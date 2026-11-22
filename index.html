@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="it" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Frequenza Italia</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Crect%20width%3D%2248%22%20height%3D%2248%22%20rx%3D%2213%22%20fill%3D%22%23ffcc52%22%2F%3E%3Cpath%20d%3D%22M11%2034V14h14v4.5h-9v4h7v4.5h-7v7zm18%200V14h5v20z%22%20fill%3D%22%232c1842%22%2F%3E%3Ccircle%20cx%3D%2238%22%20cy%3D%2214%22%20r%3D%223.3%22%20fill%3D%22%23a33270%22%2F%3E%3C%2Fsvg%3E">
+<style>
+:root{color-scheme:dark;--bg:#100e19;--panel:#1a1727;--line:#363047;--text:#faf6ff;--muted:#bfb6ce;--accent:#e3a8ff;--ink:#23102d;--glow:#362052;--ok:#91ebbd}
+:root[data-theme=light]{color-scheme:light;--bg:#f8f3fc;--panel:#fff;--line:#dcd1e6;--text:#241730;--muted:#645574;--accent:#7e2db0;--ink:#fff;--glow:#ecd7fa;--ok:#17623f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,sans-serif}button,input,select{font:inherit;color:inherit}button,select{cursor:pointer}button,input,select{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:.65rem .9rem}button:hover{border-color:var(--accent)}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}[hidden]{display:none!important}svg{display:block}button .icon{width:21px;height:21px}.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.iconBtn{display:inline-grid;place-items:center;min-width:44px;min-height:44px;padding:.5rem}.primary{background:var(--accent);color:var(--ink);border-color:transparent;font-weight:750}.muted,small{color:var(--muted)}h1,h2,p{margin:0}h2{line-height:1.15}a{color:var(--accent)}
+.shell{max-width:1280px;margin:auto;padding:0 clamp(16px,4vw,56px)}header{height:76px;display:flex;align-items:center;justify-content:space-between;gap:12px}header>div,.brand,nav,.filters,.row,.actions,.controls{display:flex;align-items:center;gap:10px}.brand{font-weight:850;letter-spacing:-.03em}.brandMark{flex:none}
+.hero{position:relative;overflow:hidden;isolation:isolate;border:1px solid var(--line);border-radius:26px;padding:clamp(26px,5vw,64px);background:radial-gradient(ellipse at 90% 28%,var(--glow),transparent 68%),var(--panel);min-height:255px;display:grid;align-content:center}.hero svg{position:absolute;inset:0 0 0 auto;height:100%;width:min(62%,640px);z-index:-1;color:var(--accent);opacity:.32}.eyebrow{color:var(--accent);font-size:.73rem;text-transform:uppercase;font-weight:800;letter-spacing:.18em}.hero h1{font-size:clamp(2.4rem,7vw,5.6rem);line-height:.98;letter-spacing:-.075em;margin:.18em 0}.hero p{max-width:45ch;color:var(--muted)}main{padding-bottom:160px!important}nav{margin:24px 0 14px;flex-wrap:wrap}nav button[aria-pressed=true]{background:var(--accent);color:var(--ink);border-color:transparent;font-weight:750}.filters{flex-wrap:wrap}.search{flex:1;min-width:min(100%,230px)}.filters select{max-width:100%}.sectionHead{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:24px 0 14px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px}.tile{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:12px;min-width:0}.tile.selected{border-color:var(--accent)}.tile.dragging{opacity:.45}.tune{border:0;background:transparent;padding:0;text-align:left;min-width:0;flex:1;display:flex;align-items:center;gap:10px}.tune img,#art{width:51px;height:51px;border-radius:12px;object-fit:contain;background:#fff;flex:none}.name{min-width:0;overflow-wrap:anywhere;font-weight:750;line-height:1.2}.name small{display:block;margin-top:6px;font-size:.75rem;font-weight:500}.tile .actions{gap:4px;flex:none}.favorite[aria-pressed=true]{color:var(--accent)}.favorite[aria-pressed=true] svg{fill:currentColor}.reorder{display:flex;justify-content:flex-end;gap:6px;margin-top:8px}.reorder button{padding:.3rem .55rem}.empty{border:1px dashed var(--line);padding:26px;border-radius:16px;color:var(--muted)}#more{display:block;margin:18px auto}
+.player{position:fixed;inset:auto 0 0;z-index:2;background:var(--panel);border-top:1px solid var(--line);padding:10px 0 max(10px,env(safe-area-inset-bottom));box-shadow:0 -6px 28px #0002}.playerInner{display:grid;grid-template-columns:minmax(0,1fr) minmax(65px,18%) auto;gap:18px;align-items:center}.playerInfo{min-width:0}.playerInfo strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.playerInfo small{display:block;line-height:1.3}.live{color:var(--ok)}#viz{width:100%;height:44px;color:var(--accent)}.controls{gap:6px}.controls input{padding:0;width:78px;accent-color:var(--accent)}.controls button:disabled,.tile button:disabled{opacity:.4;cursor:default}
+dialog{width:min(94vw,475px);max-height:90dvh;overflow:auto;border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--text);padding:22px}dialog::backdrop{background:#0e0918bb}.dialogHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}dialog label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}dialog p{margin:12px 0}.drive{width:min(96vw,620px);text-align:center}.drive .dialogHead{text-align:left}.drive img{width:108px;height:108px;object-fit:contain;background:#fff;border-radius:24px;margin:12px auto}.drive .controls{justify-content:center;margin:20px 0}.drive .controls button{min-height:62px;min-width:65px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:690px){.playerInner{grid-template-columns:minmax(0,1fr) auto;gap:8px}#viz{grid-column:1/-1;grid-row:2;height:17px}.controls input{display:none}.player #art{width:38px;height:38px}.playerInfo small{font-size:.72rem}header{height:65px}.hero{min-height:215px}.hero svg{width:83%}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+:root[data-theme=light]{--bg:#fff6e8;--panel:#fffdf6;--line:#e0cdba;--text:#29213b;--muted:#675973;--accent:#49228b;--ink:#fffdf5;--ok:#066d53}
+:root[data-theme=dark]{--bg:#181327;--panel:#241b36;--line:#524166;--text:#fff5e5;--muted:#d1c3dc;--accent:#cfb7ff;--ink:#211341;--ok:#a6f5d6}
+body{background:var(--bg);font-family:system-ui,sans-serif}
+header{height:80px}header .brand{font-size:1.18rem;letter-spacing:-.045em}
+header .brandMark{border-radius:11px;box-shadow:0 0 0 3px #ffcc5244}
+header .iconBtn{border-radius:50%;border-color:var(--line)}
+.hero{min-height:278px;border:0;border-radius:30px;color:#291637;background:radial-gradient(ellipse at 97% 95%,#ffdf56 0,transparent 47%),linear-gradient(112deg,#ffcc66 0%,#ff9fa4 49%,#bf9bff 100%);box-shadow:0 13px 0 -7px #db8d673d}
+.hero h1{font-weight:900;letter-spacing:-.085em;max-width:73%;position:relative}
+.hero p{color:#3a2149;max-width:38ch;position:relative}
+.hero .eyebrow{color:#381957;letter-spacing:.14em}
+.hero svg{color:#4c1b90;opacity:.62;width:66%}
+nav{margin-top:28px}nav button{border-radius:999px;font-weight:720}
+nav button[aria-pressed=true]{box-shadow:0 3px 0 #6f4caf52}
+.filters{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:8px}
+.filters input,.filters select{background:var(--bg);min-height:44px}
+.sectionHead h2{font-size:1.7rem;letter-spacing:-.045em}
+.grid{gap:14px}
+.tile{--station-color:#6946a9;--station-tint:#eadfff;position:relative;overflow:hidden;padding:14px 12px 14px 17px;min-height:82px;border-radius:18px;background:linear-gradient(115deg,var(--station-tint),transparent 76%),var(--panel)}
+.tile::before{content:'';width:5px;position:absolute;inset:0 auto 0 0;background:var(--station-color)}
+.tile[data-type=local]{--station-color:#007559;--station-tint:#cff3e2}
+.tile[data-type=web]{--station-color:#8b376a;--station-tint:#ffdfec}
+.tile[data-type=theme]{--station-color:#8a580c;--station-tint:#ffeab6}
+:root[data-theme=dark] .tile{--station-color:#c5a8ff;--station-tint:#3c275a}
+:root[data-theme=dark] .tile[data-type=local]{--station-color:#72e7b9;--station-tint:#1d403e}
+:root[data-theme=dark] .tile[data-type=web]{--station-color:#ff9acb;--station-tint:#4c2745}
+:root[data-theme=dark] .tile[data-type=theme]{--station-color:#ffca60;--station-tint:#49342a}
+.tile.selected{box-shadow:inset 0 0 0 1px var(--station-color);border-color:var(--station-color)}
+.tile .iconBtn{border-radius:50%;background:var(--panel)}
+.tile .favorite[aria-pressed=true]{color:var(--station-color)}
+.name{letter-spacing:-.015em}.name small{letter-spacing:normal}.tune img{border:1px solid #31204022}
+.player{background:#251735;color:#fff6ed;border-color:#634e7a;--panel:#39274e;--line:#685481;--muted:#e1d1ea;--accent:#ffcc63;--ink:#291638;--ok:#8ff0c3}
+.player .controls .iconBtn{border-radius:50%}.player [data-action=play]{min-width:49px;min-height:49px}
+.playerInfo .row{gap:5px}
+#stationSite{font-size:.75rem;text-underline-offset:2px}
+#stationSite:focus-visible{outline-offset:1px}
+#viz{color:#ffca60}
+.playerInfo>div{min-width:0}
+#stationSite{display:inline-block}
+#hideStation{background:transparent;color:var(--accent);border:0;padding:2px 6px;font-size:.75rem;text-decoration:underline;text-underline-offset:2px}
+@media(max-width:690px){
+ header{height:66px}.hero{min-height:212px;border-radius:23px}.hero h1{max-width:none}.hero svg{width:75%;opacity:.37}
+ .filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.filters .search{grid-column:1/-1;width:100%}.filters select{width:100%;min-width:0;padding-inline:6px;font-size:.85rem}.playerInner{gap:6px}main{padding-bottom:180px!important}
+}
+</style>
+</head>
+<body>
+<header class="shell">
+  <span class="brand"><svg class="brandMark" viewBox="0 0 48 48" width="40" height="40" aria-hidden="true"><rect width="48" height="48" rx="13" fill="#ffcc52"/><path d="M11 34V14h14v4.5h-9v4h7v4.5h-7v7zm18 0V14h5v20z" fill="#2c1842"/><circle cx="38" cy="14" r="3.3" fill="#a33270"/></svg><span>Frequenza Italia</span></span>
+  <div><button class="iconBtn" data-action="drive" title="Modalità guida" aria-label="Modalità guida" data-icon="car"></button><button class="iconBtn" data-action="settings" title="Impostazioni" aria-label="Impostazioni" data-icon="settings"></button></div>
+</header>
+<main class="shell">
+  <section class="hero" aria-labelledby="heroTitle">
+    <svg viewBox="0 0 600 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="currentColor" stroke-opacity=".3"/></pattern><linearGradient id="fade"><stop stop-color="white" stop-opacity="0"/><stop offset=".7" stop-color="white"/></linearGradient><mask id="fadeMask"><rect width="600" height="240" fill="url(#fade)"/></mask></defs><g mask="url(#fadeMask)"><rect width="600" height="240" fill="url(#grid)"/><path d="M0 125H105l12-17 13 34 17-49 14 71 18-98 15 126 17-158 16 174 16-167 16 153 16-127 16 103 15-79 16 58 15-42 15 29 14-16 15 8h219" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="399" cy="123" r="67" fill="none" stroke="currentColor" stroke-opacity=".4"/><circle cx="399" cy="123" r="98" fill="none" stroke="currentColor" stroke-opacity=".25"/></g></svg>
+    <div class="eyebrow">Radio italiane in diretta</div><h1 id="heroTitle">Frequenza Italia</h1><p>Ascolta le emittenti nazionali, le radio locali e le web radio.</p>
+  </section>
+  <nav aria-label="Libreria radio"><button data-view="catalog" aria-pressed="true">Esplora</button><button data-view="favorites" aria-pressed="false">Preferiti</button><button data-view="recent" aria-pressed="false">Recenti</button></nav>
+  <div class="filters" id="filters">
+    <input class="search" id="search" type="search" aria-label="Cerca una radio" placeholder="Cerca per nome, genere o regione…">
+    <select id="category" aria-label="Tipo di emittente"><option value="">Emittenti</option><option value="national">Nazionali</option><option value="local">Locali</option><option value="web">Web radio</option><option value="theme">Tematiche</option></select>
+    <select id="genre" aria-label="Genere"><option value="">Generi</option></select>
+    <select id="sort" aria-label="Ordina per"><option value="popular">Popolarità</option><option value="name">Nome A–Z</option></select>
+  </div>
+  <div class="sectionHead"><div><h2 id="listTitle">Esplora</h2><small id="catalogStatus" role="status"></small></div><button id="refresh" data-action="refresh">Aggiorna catalogo</button><button id="clearRecent" data-action="clearRecent" hidden>Svuota recenti</button></div>
+  <div id="stationList" class="grid"></div><p id="empty" class="empty" hidden></p><button id="more" data-action="more" hidden>Mostra altre radio</button>
+</main>
+<footer class="player" aria-label="Lettore radio">
+  <div class="shell playerInner">
+    <div class="row playerInfo"><img id="art" alt="" hidden><div style="min-width:0"><strong id="now">Scegli una radio</strong><small id="status" role="status">Lettore in attesa</small><a id="stationSite" target="_blank" rel="noopener noreferrer" hidden>Sito dell’emittente</a> <button id="hideStation" data-action="hideStation" type="button" hidden>Nascondi radio</button></div></div>
+    <canvas id="viz" aria-hidden="true"></canvas>
+    <div class="controls"><button class="iconBtn" data-action="prev" title="Radio precedente" aria-label="Radio precedente" data-icon="prev"></button><button class="iconBtn primary" data-action="play" aria-label="Riproduci" data-icon="play"></button><button class="iconBtn" data-action="next" title="Radio successiva" aria-label="Radio successiva" data-icon="next"></button><button class="iconBtn" data-action="timer" title="Timer di spegnimento" aria-label="Timer di spegnimento" data-icon="timer"></button><input id="volume" type="range" min="0" max="100" aria-label="Volume"></div>
+  </div>
+</footer>
+<dialog id="settingsDialog"><div class="dialogHead"><h2>Impostazioni</h2><form method="dialog"><button aria-label="Chiudi">✕</button></form></div>
+  <label>Tema <select id="theme"><option value="light">Chiaro</option><option value="dark">Scuro</option><option value="system">Come il dispositivo</option></select></label>
+  <label>Riconnessione automatica <input type="checkbox" id="reconnect"></label>
+  <label>Visualizzatore <input type="checkbox" id="visualizer"></label>
+  <p class="muted">Il visualizzatore mostra lo spettro quando il server permette l’analisi audio. Negli altri casi segnala lo stato della diretta.</p>
+  <p><a href="https://www.radio-browser.info/" target="_blank" rel="noopener noreferrer">Catalogo Radio Browser</a></p>
+</dialog>
+<dialog id="timerDialog"><div class="dialogHead"><h2>Timer di spegnimento</h2><form method="dialog"><button aria-label="Chiudi">✕</button></form></div><p id="timerStatus">Timer disattivato</p><form id="timerForm"><label>Minuti <input id="minutes" type="number" min="1" max="720" value="30" required style="width:100px"></label><button class="primary">Avvia timer</button> <button type="button" data-action="cancelTimer">Disattiva</button></form></dialog>
+<dialog id="driveDialog" class="drive"><div class="dialogHead"><h2>Modalità guida</h2><form method="dialog"><button aria-label="Esci dalla modalità guida">✕</button></form></div><img id="driveArt" alt="" hidden><h2 id="driveName">Scegli una radio</h2><p id="driveStatus" role="status"></p><div class="controls"><button class="iconBtn" data-action="prev" aria-label="Radio precedente" data-icon="prev"></button><button class="iconBtn primary" data-action="play" aria-label="Riproduci" data-icon="play"></button><button class="iconBtn" data-action="next" aria-label="Radio successiva" data-icon="next"></button></div><label>Selezione radio <select id="driveQueue"><option value="favorites">Preferiti</option><option value="catalog">Catalogo</option></select></label></dialog>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const iconPaths = {
+ radio:'<circle cx="12" cy="12" r="2"/><path d="M8.5 8.5a5 5 0 0 0 0 7m7-7a5 5 0 0 1 0 7M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/>',
+ play:'<path d="m8 5 12 7-12 7z" fill="currentColor"/>',pause:'<path d="M9 5v14m6-14v14" stroke-width="3"/>',
+ prev:'<path d="M5 5v14m14-14L8 12l11 7z"/>',next:'<path d="M19 5v14M5 5l11 7-11 7z"/>',
+ heart:'<path d="M20.8 4.7a5.5 5.5 0 0 0-7.8 0l-1 1-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1 7.8 7.7 8.8-8.7a5.5 5.5 0 0 0 0-7.8z"/>',
+ timer:'<circle cx="12" cy="13" r="8"/><path d="M9 2h6m-3 7v4l3 2"/>',
+ car:'<path d="m4 11 2-6h12l2 6M3 11h18v7H3zm3 7v2m12-2v2M6 14h2m8 0h2"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M10 2h4l.7 2.7 2 .9 2.5-1.2 2.8 2.8-1.2 2.5.9 2L24 12l-.3 2-2.7.7-.9 2 1.2 2.5-2.8 2.8-2.5-1.2-2 .9L14 24h-4l-.7-2.7-2-.9-2.5 1.2L2 18.8l1.2-2.5-.9-2L0 14v-4l2.7-.7.9-2L2.4 4.8 5.2 2l2.5 1.2 2-.9z" transform="translate(2 2) scale(.83)"/>'
+};
+function setIcon(el, name){ el.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">'+iconPaths[name]+'</svg>'; }
+document.querySelectorAll('[data-icon]').forEach(el=>setIcon(el,el.dataset.icon));
+function read(key, fallback){try{return JSON.parse(localStorage.getItem('frequenza-v1-'+key)) ?? fallback;}catch{return fallback;}}
+function save(key, value){try{localStorage.setItem('frequenza-v1-'+key,JSON.stringify(value));}catch{}}
+const prefs = {theme:'light',volume:75,reconnect:true,visualizer:true,...read('settings',{})};
+function isRadioArmisa(station){
+ const id=station.uuid??station.stationuuid??station.id;
+ return id==='b1201e74-2979-44d8-866e-02f74347a8d0'||/^(?:radio[\s._-]*)?armisa$/i.test(String(station.name??'').trim());
+}
+function loadStationHistory(key){
+ const stored=read(key,[]);
+ const filtered=stored.filter(station=>!isRadioArmisa(station));
+ if(filtered.length!==stored.length)save(key,filtered);
+ return filtered;
+}
+let favorites=loadStationHistory('favorites'), recent=loadStationHistory('recent');
+const national = [
+ ['RTL 102.5','https://streamingv2.shoutcast.com/rtl-1025','Pop'],
+ ['RDS','https://stream.rds.radio/audio/rds.stream_aac/playlist.m3u8','Pop'],
+ ['Radio Deejay','https://streamcdnr1-4c4b867c89244861ac216426883d0ad1.msvdn.net/radiodeejay/radiodeejay/master_ma.m3u8','Pop'],
+ ['Radio 105','https://icy.unitedradio.it/Radio105.mp3','Pop'],
+ ['Radio Italia','https://stream4.xdevel.com/audio0s976570-1511/stream/icecast.audio','Musica italiana'],
+ ['Rai Radio 1','https://icestreaming.rai.it/1.mp3','Notizie'],
+ ['Rai Radio 2','https://icestreaming.rai.it/2.mp3','Pop'],
+ ['Rai Radio 3','https://icestreaming.rai.it/3.mp3','Classica'],
+ ['Virgin Radio','https://icy.unitedradio.it/Virgin.mp3','Rock'],
+ ['R101','https://icy.unitedradio.it/R101.mp3','Pop'],
+ ['Radio 24','https://shoutcast.radio24.it/stream.mp3','Notizie'],
+ ['Radio Capital','https://streamcdnr1-4c4b867c89244861ac216426883d0ad1.msvdn.net/radiocapital/radiocapital/master_ma.m3u8','Pop'],
+ ['m2o','https://streamcdnr1-4c4b867c89244861ac216426883d0ad1.msvdn.net/radiom2o/radiom2o/master_ma.m3u8','Dance'],
+ ['Radio Kiss Kiss','https://ice07.fluidstream.net/KissKiss.mp3','Pop'],
+ ['Radio Subasio','https://icy.unitedradio.it/Subasio.mp3','Pop'],
+ ['Radio Monte Carlo','https://icy.unitedradio.it/RMC.mp3','Pop'],
+ ['Radiofreccia','https://streamingv2.shoutcast.com/radiofreccia','Rock']
+];
+function normalize(str){return String(str??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+function compact(str){return normalize(str).replace(/[^a-z0-9]/g,'');}
+function nationalKey(name){
+ const key=compact(name).replace(/^rairadio0/,'rairadio').replace(/^rai([123])$/,'rairadio$1').replace(/^rds100.*/, 'rds').replace(/^radioitaliasolomusicaitaliana$/,'radioitalia');
+ return national.findIndex(([label])=>compact(label)===key || (label==='Radio Capital'&&key==='capital'));
+}
+function webUrl(value){
+ try{const url=new URL(value);return /^https?:$/.test(url.protocol)?url.href:'';}catch{return '';}
+}
+const nationalSites=[
+ 'rtl.it','rds.it','deejay.it','105.net','radioitalia.it',
+ 'raiplaysound.it/radio1','raiplaysound.it/radio2','raiplaysound.it/radio3',
+ 'virginradio.it','r101.it','radio24.ilsole24ore.com','capital.it','m2o.it',
+ 'kisskiss.it','radiosubasio.it','radiomontecarlo.net','radiofreccia.it'
+];
+const seed = national.map(([name,url,genre],index)=>({id:'national-'+index,name,url,alt:'',genre:[genre],tags:'',region:'',logo:'',type:'national',homepage:'https://www.'+nationalSites[index],codec:url.includes('.m3u8')?'HLS':'MP3',clicks:0}));
+const types={national:'Nazionale',local:'Locale',web:'Web radio',theme:'Tematica'};
+const endpoints=['de1','de2','nl1','at1'].map(server=>'https://'+server+'.api.radio-browser.info');
+const hiddenStations=new Map(read('hiddenStations',[]));
+const cached=read('catalog',null);
+const cachedStations=cached?.stations?.filter(station=>!isRadioArmisa(station))??[];
+let catalog=cachedStations.length?cachedStations:seed;
+let catalogLabel=cachedStations.length?'Catalogo salvato':'Selezione iniziale';
+let view='catalog', limit=36, loading=false, dragged=null;
+const genreRules = [
+ ['Pop',/\bpop\b|top 40|hits/],['Rock',/rock|metal|punk/],['Dance',/dance|edm|techno|house|disco/],
+ ['Jazz',/jazz|blues|soul/],['Classica',/classic(al|a)|opera/],['Notizie',/news|notizie|talk|information/],
+ ['Sport',/sport|calcio/],['Musica italiana',/italian music|musica italiana/],['Anni 70–90',/70s|80s|90s|anni [789]0/]
+];
+function mediaSource(url, hls=false, codec=''){
+ const safe=webUrl(url);
+ if(!safe)return null;
+ return {url:safe,hls:hls||/\.m3u8(?:[?#]|$)/i.test(safe),codec};
+}
+function uniqueSources(sources){
+ const byUrl=new Map();
+ for(const source of sources)if(source&&!byUrl.has(source.url))byUrl.set(source.url,source);
+ return [...byUrl.values()].slice(0,6);
+}
+function stationSources(station){
+ const fallback=seed.find(item=>item.id===station.id);
+ return uniqueSources([
+  ...(station.sources||[]),
+  mediaSource(station.url,station.codec==='HLS',station.codec),
+  mediaSource(station.alt),
+  mediaSource(fallback?.url,fallback?.codec==='HLS',fallback?.codec)
+ ]);
+}
+function sourceSignature(station){
+ return JSON.stringify(stationSources(station).map(source=>[source.url,Boolean(source.hls)]).sort());
+}
+function isHidden(station){
+ return hiddenStations.get(station.id)===sourceSignature(station);
+}
+function fromApi(item){
+ if(isRadioArmisa(item))return null;
+ const index=nationalKey(item.name), tags=normalize(item.tags);
+ const direct=webUrl(item.url_resolved), listed=webUrl(item.url);
+ if(!item.stationuuid || !item.name?.trim() || (!direct&&!listed) || Number(item.lastcheckok)!==1) return null;
+ const hls=Number(item.hls)===1;
+ const codec=String(item.codec||'').toUpperCase();
+ const sources=uniqueSources([mediaSource(direct||listed,hls,codec),mediaSource(listed,hls&&(!direct||direct===listed),codec)]);
+ sources.sort((a,b)=>Number(b.url.startsWith('https:'))-Number(a.url.startsWith('https:')));
+ const first=sources[0];
+ const genre=genreRules.filter(([,pattern])=>pattern.test(tags)).map(([name])=>name);
+ const type=index>=0?'national':/web[ -]?radio|online only/.test(tags+' '+normalize(item.name))?'web':/sport|classical|jazz|religio|notizie|news|talk/.test(tags)?'theme':'local';
+ return {id:index>=0?'national-'+index:item.stationuuid,uuid:item.stationuuid,name:index>=0?national[index][0]:item.name.trim(),url:first.url,alt:sources[1]?.url||'',sources,homepage:webUrl(item.homepage)||seed[index]?.homepage||'',logo:webUrl(item.favicon),region:item.state||'',tags,genre:genre.length?genre:index>=0?[national[index][2]]:[],type,codec:first.hls?'HLS':codec||'Audio',clicks:Number(item.clickcount)||0};
+}
+function mergeCatalog(items){
+ const stations=new Map(), urls=new Set();
+ for(const item of items){
+  const station=fromApi(item);
+  if(!station)continue;
+  const existing=stations.get(station.id);
+  if(existing){
+   existing.sources=uniqueSources([...existing.sources,...station.sources]);
+   existing.logo||=station.logo;
+   existing.homepage||=station.homepage;
+   continue;
+  }
+  if(urls.has(station.url))continue;
+  stations.set(station.id,station);
+  urls.add(station.url);
+ }
+ if(!stations.size)return [];
+ for(const station of seed)if(!stations.has(station.id))stations.set(station.id,station);
+ return [...stations.values()].sort((a,b)=>b.clicks-a.clicks);
+}
+async function refresh(){
+ if(loading)return;
+ loading=true;renderStatus();
+ const query='/json/stations/bycountrycodeexact/IT?hidebroken=true&order=clickcount&reverse=true';
+ try{
+  const stations=await Promise.any(endpoints.map(async endpoint=>{
+   const response=await fetch(endpoint+query,{signal:AbortSignal.timeout(8500)});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   const result=mergeCatalog(await response.json());
+   if(!result.length)throw new Error('Catalogo vuoto');
+   return result;
+  }));
+  catalog=stations;
+  catalogLabel='Catalogo aggiornato';
+  save('catalog',{stations,updated:Date.now()});
+ }catch{
+  catalogLabel=catalog===seed?'Catalogo online non raggiungibile · selezione iniziale':'Catalogo online non raggiungibile · copia salvata';
+ }finally{loading=false;render();}
+}
+let stationById=new Map();
+function hydrate(list){return list.map(station=>stationById.get(station.id)||station).filter(station=>!isHidden(station));}
+function queue(){
+ if($('driveDialog').open){
+  const saved=hydrate(favorites);
+  return $('driveQueue').value==='favorites'&&saved.length?saved:catalog.filter(station=>!isHidden(station));
+ }
+ return visibleStations();
+}
+function visibleStations(){
+ if(view==='favorites')return hydrate(favorites);
+ if(view==='recent')return hydrate(recent);
+ const terms=normalize($('search').value).split(/\s+/).filter(Boolean);
+ const category=$('category').value, genre=$('genre').value;
+ const result=catalog.filter(station=>{
+  if(isHidden(station))return false;
+  const searchable=normalize([station.name,station.region,station.tags,...station.genre,types[station.type]].join(' '));
+  return (!category||category===station.type)&&(!genre||station.genre.includes(genre))&&terms.every(term=>searchable.includes(term)||(compact(term)&&(compact(term)&&compact(station.name).includes(compact(term)))));
+ });
+ return $('sort').value==='name'?result.sort((a,b)=>a.name.localeCompare(b.name,'it')):result.sort((a,b)=>b.clicks-a.clicks);
+}
+function avatar(station){
+ const initials=station.name.trim().split(/\s+/).slice(0,2).map(word=>Array.from(word)[0]).join('').replace(/[^\p{L}\p{N}]/gu,'')||'♫';
+ const hue=Array.from(station.name).reduce((hash,char)=>(hash*31+char.codePointAt(0))%360,0);
+ return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 96 96"><rect width="96" height="96" rx="18" fill="hsl('+hue+' 56% 31%)"/><circle cx="76" cy="16" r="42" fill="#fff" opacity=".12"/><path d="M0 81h18l8-10 9 15 12-8h49" stroke="#fff" opacity=".35" fill="none"/><text x="48" y="53" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,sans-serif" font-size="32" font-weight="750" fill="white">'+initials.toUpperCase()+'</text></svg>');
+}
+function artwork(img,station){
+ const fallback=avatar(station);
+ img.onerror=()=>{img.onerror=null;img.src=fallback;};
+ img.referrerPolicy='no-referrer';img.src=station.logo||fallback;img.hidden=false;
+}
+function button(action,label,icon,style='iconBtn'){
+ const el=document.createElement('button');
+ el.className=style;el.dataset.action=action;el.title=label;el.setAttribute('aria-label',label);
+ if(icon)setIcon(el,icon); return el;
+}
+function tile(station,index){
+ const el=document.createElement('article');el.dataset.type=station.type;
+ el.className='tile'+(current?.id===station.id?' selected':'');el.dataset.id=station.id;
+ const row=document.createElement('div');row.className='row';
+ const tune=button('tune','Ascolta '+station.name,null,'tune');
+ const image=document.createElement('img');image.alt='';image.loading='lazy';artwork(image,station);
+ const name=document.createElement('span');name.className='name';name.textContent=station.name;
+ const info=document.createElement('small');info.textContent=[station.region||types[station.type],station.genre[0],station.codec].filter(Boolean).join(' · ');
+ name.append(info);tune.append(image,name);
+ const actions=document.createElement('div');actions.className='actions';
+ const saved=favorites.some(item=>item.id===station.id);
+ const favorite=button('favorite',(saved?'Rimuovi dai preferiti: ':'Aggiungi ai preferiti: ')+station.name,'heart','iconBtn favorite');
+ favorite.setAttribute('aria-pressed',saved);actions.append(favorite);
+ row.append(tune,actions);el.append(row);
+ if(view==='favorites'){
+  el.draggable=true;
+  const reorder=document.createElement('div');reorder.className='reorder';
+  const up=button('up','Sposta in alto: '+station.name,null,'');up.textContent='↑';up.disabled=index===0;
+  const down=button('down','Sposta in basso: '+station.name,null,'');down.textContent='↓';down.disabled=index===hydrate(favorites).length-1;
+  reorder.append(up,down);el.append(reorder);
+ }
+ return el;
+}
+function renderStatus(){
+ const count=visibleStations().length;
+ $('catalogStatus').textContent=view==='catalog'?(loading?'Aggiornamento catalogo…':catalogLabel)+' · '+count+' emittenti':count+' emittenti';
+ $('refresh').disabled=loading;
+}
+function render(){
+ stationById=new Map(catalog.map(station=>[station.id,station]));
+ const previousGenre=$('genre').value;
+ const genres=[...new Set(catalog.flatMap(station=>station.genre))].sort((a,b)=>a.localeCompare(b,'it'));
+ $('genre').replaceChildren(new Option('Generi',''),...genres.map(genre=>new Option(genre,genre)));
+ if(genres.includes(previousGenre))$('genre').value=previousGenre;
+ const stations=visibleStations();
+ $('listTitle').textContent={catalog:'Esplora',favorites:'Preferiti',recent:'Recenti'}[view];
+ $('filters').hidden=view!=='catalog';$('refresh').hidden=view!=='catalog';$('clearRecent').hidden=view!=='recent'||!recent.length;
+ $('empty').hidden=!!stations.length;
+ $('empty').textContent={catalog:'Nessuna emittente corrisponde alla ricerca.',favorites:'Tocca il cuore accanto a una radio per salvarla qui.',recent:'Le radio ascoltate di recente appariranno qui.'}[view];
+ $('stationList').replaceChildren(...stations.slice(0,limit).map(tile));
+ $('more').hidden=stations.length<=limit;
+ renderStatus();updateControls();
+}
+function nudgeFavorite(id,direction){
+ const visible=hydrate(favorites);
+ const position=visible.findIndex(station=>station.id===id);
+ const neighbor=visible[position+direction];
+ if(position>=0&&neighbor)moveFavorite(id,favorites.findIndex(station=>station.id===neighbor.id));
+}
+function moveFavorite(id,to){
+ const from=favorites.findIndex(station=>station.id===id);
+ if(from<0||to<0||to>=favorites.length||from===to)return;
+ favorites.splice(to,0,favorites.splice(from,1)[0]);save('favorites',favorites);render();
+}
+const list=$('stationList');
+list.addEventListener('dragstart',event=>{
+ const card=event.target.closest('.tile');if(!card||view!=='favorites')return;
+ dragged=card.dataset.id;card.classList.add('dragging');
+ event.dataTransfer.setData('text/plain',dragged);event.dataTransfer.effectAllowed='move';
+});
+list.addEventListener('dragover',event=>{if(dragged&&event.target.closest('.tile'))event.preventDefault();});
+list.addEventListener('drop',event=>{
+ const target=event.target.closest('.tile');
+ if(!dragged||!target)return;
+ event.preventDefault();moveFavorite(dragged,favorites.findIndex(station=>station.id===target.dataset.id));dragged=null;
+});
+list.addEventListener('dragend',()=>{list.querySelector('.dragging')?.classList.remove('dragging');dragged=null;});
+let current=null, audio=null, hls=null, wanted=false, live=false, attempts=0;
+let generation=0, watchdog, retry, progress, timerInterval, deadline=0;
+let status='Lettore in attesa', context, analyser, spectrum, canvasFrame;
+let sources=[], sourceIndex=0, modeIndex=0, lastSuccessful=null, currentGraph=null;
+const lastGood=new Map(), withoutCors=new Set();
+const offline=()=>navigator.onLine===false;
+let hlsDownload;
+function loadHls(){
+ if(window.Hls)return Promise.resolve(true);
+ hlsDownload??=Promise.any([
+  'https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js',
+  'https://unpkg.com/hls.js@1.6.15/dist/hls.min.js'
+ ].map(url=>new Promise((resolve,reject)=>{
+  const script=document.createElement('script');
+  const timeout=setTimeout(()=>{script.remove();reject(new Error('Timeout HLS'));},6500);
+  script.onload=()=>{
+   clearTimeout(timeout);
+   if(window.Hls)resolve(true);
+   else reject(new Error('HLS assente'));
+  };
+  script.onerror=()=>{clearTimeout(timeout);script.remove();reject(new Error('Download HLS non riuscito'));};
+  script.src=url;document.head.append(script);
+ }))).catch(()=>{hlsDownload=null;return false;});
+ return hlsDownload;
+}
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const darkMode=matchMedia('(prefers-color-scheme: dark)');
+function applyTheme(){
+ document.documentElement.dataset.theme=prefs.theme==='system'?(darkMode.matches?'dark':'light'):prefs.theme;
+}
+darkMode.addEventListener('change',applyTheme);
+function setStatus(message,isLive=false,showSite=false,canHide=false){
+ $('hideStation').hidden=!(canHide&&current);
+ $('stationSite').hidden=!(showSite&&$('stationSite').hasAttribute('href'));
+ status=message;live=isLive;
+ $('status').textContent=message;$('status').classList.toggle('live',isLive);
+ $('driveStatus').textContent=message;updateControls();drawWhenNeeded();
+}
+function updateControls(){
+ for(const control of document.querySelectorAll('[data-action=play]')){
+  control.disabled=!current&&!queue().length;
+  control.setAttribute('aria-label',wanted?'Pausa':'Riproduci');
+  control.title=wanted?'Pausa':'Riproduci';
+  setIcon(control,wanted?'pause':'play');
+ }
+ const noStations=!queue().length;
+ document.querySelectorAll('[data-action=next],[data-action=prev]').forEach(control=>control.disabled=noStations);
+ if('mediaSession' in navigator){
+  navigator.mediaSession.playbackState=current?(live?'playing':'paused'):'none';
+ }
+}
+function updateMetadata(){
+ for(const id of ['art','driveArt'])artwork($(id),current);
+ const site=webUrl(current.homepage)||seed.find(station=>station.id===current.id)?.homepage;
+ if(site)$('stationSite').href=site;else $('stationSite').removeAttribute('href');
+ $('now').textContent=current.name;$('driveName').textContent=current.name;
+ if('mediaSession' in navigator && 'MediaMetadata' in window){
+  navigator.mediaSession.metadata=new MediaMetadata({title:current.name,artist:'Diretta radio',album:'Frequenza Italia',artwork:[{src:current.logo||avatar(current)}]});
+ }
+ list.querySelectorAll('.tile').forEach(card=>card.classList.toggle('selected',card.dataset.id===current.id));
+}
+function resetConnection(){
+ generation++;
+ clearTimeout(watchdog);watchdog=null;
+ clearTimeout(retry);retry=null;
+ clearInterval(progress);progress=null;
+ if(hls){hls.destroy();hls=null;}
+ if(audio){audio.pause();audio.removeAttribute('src');audio.load();audio=null;}
+ if(currentGraph){
+  currentGraph.source.disconnect();
+  currentGraph.analyser.disconnect();
+  currentGraph=null;
+ }
+ analyser=null;spectrum=null;
+}
+function stop(message='In pausa',showSite=false,canHide=false){
+ wanted=false;resetConnection();setStatus(message,false,showSite,canHide);
+}
+function hideCurrent(){
+ if(!current)return;
+ const {name,id}=current;
+ hiddenStations.set(id,sourceSignature(current));
+ save('hiddenStations',[...hiddenStations]);
+ current=null;
+ $('now').textContent='Scegli una radio';$('driveName').textContent='Scegli una radio';
+ $('art').hidden=true;$('driveArt').hidden=true;$('stationSite').removeAttribute('href');
+ if('mediaSession' in navigator)navigator.mediaSession.metadata=null;
+ stop(name+' rimossa dal catalogo.');
+ render();
+}
+async function confirmUnavailable(message){
+ const token=generation;
+ if(offline()){connect();return;}
+ setStatus('Verifica della connessione…');
+ let reachable=false;
+ try{
+  await Promise.any(endpoints.map(async endpoint=>{
+   const response=await fetch(endpoint+'/json/stats',{cache:'no-store',signal:AbortSignal.timeout(4500)});
+   if(!response.ok)throw new Error('Server non raggiungibile');
+   const info=await response.json();
+   if(typeof info.stations!=='number')throw new Error('Risposta inattesa');
+  }));
+  reachable=true;
+ }catch{}
+ if(token!==generation||!wanted)return;
+ if(offline()){connect();return;}
+ if(reachable)hideCurrent();
+ else stop(message+' Stato della rete non verificato.',true,true);
+}
+function prepareContext(){
+ if(!prefs.visualizer||!window.AudioContext)return;
+ try{
+  context??=new AudioContext();
+  if(context.state!=='running')context.resume().catch(()=>{});
+ }catch{}
+}
+function start(station){
+ current=station;wanted=true;attempts=0;sourceIndex=0;modeIndex=0;lastSuccessful=null;
+ sources=stationSources(station);
+ const known=lastGood.get(station.id);
+ if(known){
+  const position=sources.findIndex(source=>source.url===known);
+  if(position>0)sources.unshift(...sources.splice(position,1));
+ }
+ prepareContext();updateMetadata();connect();
+}
+function scheduleRetry(message){
+ if(!prefs.reconnect){
+  stop(message+' Premi Riproduci per riprovare.',true,true);
+  return;
+ }
+ if(attempts>=3){confirmUnavailable(message);return;}
+ const delay=2**(++attempts);
+ if(offline()){setStatus('Connessione Internet assente. Riconnessione al ritorno della rete.');return;}
+ setStatus('Riconnessione in corso… '+delay+' s');
+ retry=setTimeout(connect,delay*1000);
+}
+function armWatchdog(fail){
+ if(watchdog)return;
+ watchdog=setTimeout(()=>fail('La diretta non risponde.'),12000);
+}
+function failConnection(message,token,tryAnotherMode=false){
+ if(token!==generation||!wanted)return;
+ const source=sources[sourceIndex];
+ if(audio?.crossOrigin==='anonymous'&&!hls){
+  withoutCors.add(source.url);
+  connect();return;
+ }
+ if(tryAnotherMode&&modeIndex===0){
+  modeIndex=1;connect();return;
+ }
+ resetConnection();
+ modeIndex=0;
+ sourceIndex++;
+ if(sourceIndex<sources.length){connect();return;}
+ sourceIndex=0;
+ scheduleRetry(message);
+}
+function connect(){
+ if(!wanted||!current)return;
+ resetConnection();
+ if(!sources.length){stop('Indirizzo della diretta mancante.',true);return;}
+ if(offline()){
+  if(prefs.reconnect)setStatus('Connessione Internet assente. Riconnessione al ritorno della rete.');
+  else stop('Connessione Internet assente.',true);
+  return;
+ }
+ const token=generation, source=sources[sourceIndex], url=source.url;
+ const player=new Audio();
+ audio=player;player.preload='auto';player.volume=prefs.volume/100;
+ const nativeHls=Boolean(player.canPlayType('application/vnd.apple.mpegurl')||player.canPlayType('application/x-mpegURL'));
+ const libraryHls=Boolean(window.Hls?.isSupported());
+ if(source.hls&&!nativeHls&&!window.Hls){
+  setStatus('Caricamento supporto HLS…');
+  loadHls().then(loaded=>{
+   if(token!==generation||!wanted)return;
+   if(loaded)connect();
+   else failConnection('Supporto HLS non raggiungibile.',token);
+  });
+  return;
+ }
+ const useHls=source.hls&&libraryHls&&(!nativeHls||modeIndex===0);
+ const nativeFallback=source.hls&&libraryHls&&nativeHls&&modeIndex===0;
+ if(source.hls&&!useHls&&!nativeHls){failConnection('Questo browser non riesce a riprodurre il flusso HLS.',token);return;}
+ const graph=Boolean(context?.state==='running'&&prefs.visualizer&&(useHls||(!withoutCors.has(url)&&url.startsWith('https:'))));
+ if(graph){
+  try{
+   if(!useHls)player.crossOrigin='anonymous';
+   const mediaNode=context.createMediaElementSource(player);
+   const analysis=context.createAnalyser();analysis.fftSize=128;
+   currentGraph={source:mediaNode,analyser:analysis};
+   mediaNode.connect(analysis);analysis.connect(context.destination);
+   analyser=analysis;spectrum=new Uint8Array(analysis.frequencyBinCount);
+  }catch{player.removeAttribute('crossorigin');analyser=null;}
+ }
+ setStatus(sourceIndex||modeIndex?'Provo un flusso alternativo…':attempts?'Riconnessione in corso…':'Connessione alla diretta…');
+ const guarded=fn=>event=>{if(token===generation&&wanted)fn(event);};
+ const failure=message=>failConnection(message,token,nativeFallback);
+ player.addEventListener('playing',guarded(()=>{
+  clearTimeout(watchdog);watchdog=null;
+  let lastTime=player.currentTime,lastProgress=performance.now(), firstProgress=0;
+  clearInterval(progress);
+  setStatus('● In diretta',true);
+  progress=setInterval(guarded(()=>{
+   const now=performance.now(), time=player.currentTime;
+   if(time>lastTime+.08||time<lastTime){
+    firstProgress||=now;
+    lastTime=time;lastProgress=now;
+    if(!live){clearTimeout(watchdog);watchdog=null;setStatus('● In diretta',true);}
+    if(now-firstProgress>10000){attempts=0;lastGood.set(current.id,url);}
+   }else if(now-lastProgress>12000){
+    failure('La diretta si è bloccata.');
+   }
+  }),2000);
+  if(lastSuccessful!==current.id){
+   lastSuccessful=current.id;
+   recent=[current,...recent.filter(item=>item.id!==current.id)].slice(0,30);
+   save('recent',recent);if(view==='recent')render();
+  }
+ }));
+ player.addEventListener('waiting',guarded(()=>{
+  if(live)setStatus('Buffering…');
+  armWatchdog(failure);
+ }));
+ player.addEventListener('ended',guarded(()=>failure('La diretta si è interrotta.')));
+ player.addEventListener('error',guarded(()=>failure('Flusso non disponibile.')));
+ armWatchdog(failure);
+ const play=()=>player.play().catch(guarded(error=>{
+  if(error.name==='NotAllowedError')stop('Premi Riproduci per avviare la radio.',true);
+  else if(error.name!=='AbortError')failure('Flusso non disponibile.');
+ }));
+ if(useHls){
+  try{
+   hls=new Hls({enableWorker:true,lowLatencyMode:false});
+   hls.on(Hls.Events.ERROR,(_event,data)=>{if(data.fatal)failure('Flusso HLS non disponibile.');});
+   hls.on(Hls.Events.MANIFEST_PARSED,guarded(play));
+   hls.attachMedia(player);
+   hls.loadSource(url);
+  }catch{failure('Flusso HLS non disponibile.');}
+ }else{player.src=url;play();}
+}
+window.addEventListener('online',()=>{if(wanted&&!audio&&prefs.reconnect)connect();});
+window.addEventListener('offline',()=>{
+ if(!wanted)return;
+ resetConnection();
+ if(prefs.reconnect)setStatus('Connessione Internet assente. Riconnessione al ritorno della rete.');
+ else stop('Connessione Internet assente.',true);
+});
+function navigate(offset){
+ const stations=queue();
+ if(!stations.length)return;
+ const index=stations.findIndex(station=>station.id===current?.id);
+ const next=index<0?(offset>0?0:stations.length-1):(index+offset+stations.length)%stations.length;
+ start(stations[next]);
+}
+function togglePlay(){
+ if(wanted)stop();
+ else if(current)start(stationById.get(current.id)||current);
+ else navigate(1);
+}
+if('mediaSession' in navigator){
+ const handlers={play:()=>{if(!wanted)togglePlay();},pause:()=>stop(),stop:()=>stop(),previoustrack:()=>navigate(-1),nexttrack:()=>navigate(1)};
+ for(const [action,handler] of Object.entries(handlers)){
+  try{navigator.mediaSession.setActionHandler(action,handler);}catch{}
+ }
+}
+function updateTimer(){
+ const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+ if(deadline&&!remaining){stop('Timer terminato');cancelTimer();return;}
+ const label=deadline?'Spegnimento tra '+Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0'):'Timer disattivato';
+ $('timerStatus').textContent=label;
+ const control=document.querySelector('[data-action=timer]');
+ control.title=deadline?label:'Timer di spegnimento';
+ control.setAttribute('aria-label',control.title);
+ control.classList.toggle('primary',Boolean(deadline));
+}
+function cancelTimer(){deadline=0;clearInterval(timerInterval);updateTimer();}
+$('timerForm').addEventListener('submit',event=>{
+ event.preventDefault();cancelTimer();
+ deadline=Date.now()+$('minutes').valueAsNumber*60000;
+ updateTimer();timerInterval=setInterval(updateTimer,250);$('timerDialog').close();
+});
+document.addEventListener('visibilitychange',()=>{if(deadline)updateTimer();drawWhenNeeded();});
+function paint(){
+ canvasFrame=0;
+ const canvas=$('viz'), scale=window.devicePixelRatio||1;
+ const width=Math.round(canvas.clientWidth*scale),height=Math.round(canvas.clientHeight*scale);
+ if(!width||!height)return;
+ if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+ const ctx=canvas.getContext('2d');
+ ctx.clearRect(0,0,width,height);
+ ctx.fillStyle=getComputedStyle(canvas).color;
+ if(live&&analyser)analyser.getByteFrequencyData(spectrum);
+ const bars=24,step=width/bars;
+ for(let i=0;i<bars;i++){
+  const level=live&&analyser?spectrum[Math.floor(i*spectrum.length/bars)]/255:0;
+  const size=Math.max(2*scale,level*height);
+  ctx.globalAlpha=level?.8:live?.65:.25;
+  ctx.fillRect(i*step,(height-size)/2,Math.max(1,step-2*scale),size);
+ }
+ if(live&&analyser&&!reduceMotion.matches&&!document.hidden)canvasFrame=requestAnimationFrame(paint);
+}
+function drawWhenNeeded(){
+ $('viz').hidden=!prefs.visualizer;
+ if(canvasFrame)cancelAnimationFrame(canvasFrame);
+ canvasFrame=0;
+ if(prefs.visualizer&&!document.hidden)paint();
+}
+reduceMotion.addEventListener('change',drawWhenNeeded);
+window.addEventListener('resize',drawWhenNeeded);
+for(const key of ['theme','visualizer','reconnect']){
+ const input=$(key);
+ if(input.type==='checkbox')input.checked=prefs[key];else input.value=prefs[key];
+ input.addEventListener('change',()=>{
+  prefs[key]=input.type==='checkbox'?input.checked:input.value;
+  save('settings',prefs);applyTheme();drawWhenNeeded();
+  if(key==='reconnect'&&!prefs.reconnect&&wanted&&(retry||offline()))stop('Riconnessione disattivata.');
+ });
+}
+$('volume').value=prefs.volume;
+$('volume').addEventListener('input',()=>{
+ prefs.volume=$('volume').valueAsNumber;
+ if(audio)audio.volume=prefs.volume;
+ save('settings',prefs);
+});
+$('driveQueue').addEventListener('change',updateControls);
+$('driveDialog').addEventListener('close',updateControls);
+$('search').addEventListener('input',()=>{limit=36;render();});
+for(const id of ['category','genre','sort'])$(id).addEventListener('change',()=>{limit=36;render();});
+document.addEventListener('click',event=>{
+ const tab=event.target.closest('[data-view]');
+ if(tab){
+  view=tab.dataset.view;limit=36;
+  document.querySelectorAll('[data-view]').forEach(item=>item.setAttribute('aria-pressed',item===tab));render();return;
+ }
+ const control=event.target.closest('[data-action]');
+ if(!control)return;
+ const id=control.closest('.tile')?.dataset.id;
+ const station=id&&(stationById.get(id)||favorites.find(item=>item.id===id)||recent.find(item=>item.id===id));
+ switch(control.dataset.action){
+  case 'tune': if(station){if(current?.id===id&&wanted)stop();else start(station);}break;
+  case 'favorite': {
+   if(!station)break;
+   const saved=favorites.some(item=>item.id===id);
+   favorites=saved?favorites.filter(item=>item.id!==id):[...favorites,station];
+   save('favorites',favorites);render();
+   const card=[...list.children].find(element=>element.dataset.id===id);
+   (card?.querySelector('.favorite')||document.querySelector('[data-view=favorites]')).focus();
+   break;
+  }
+  case 'up':
+  case 'down': {
+   nudgeFavorite(id,control.dataset.action==='up'?-1:1);
+   const card=[...list.children].find(element=>element.dataset.id===id);
+   (card?.querySelector('[data-action='+control.dataset.action+']:enabled')||card?.querySelector('.tune'))?.focus();
+   break;
+  }
+  case 'more': {
+   const first=list.children.length;
+   limit+=36;render();list.children[first]?.querySelector('.tune')?.focus();break;
+  }
+  case 'hideStation':hideCurrent();break;
+  case 'clearRecent':recent=[];save('recent',recent);render();break;
+  case 'refresh':refresh();break;
+  case 'settings':$('settingsDialog').showModal();break;
+  case 'timer':updateTimer();$('timerDialog').showModal();break;
+  case 'cancelTimer':cancelTimer();break;
+  case 'drive':$('driveQueue').value=favorites.length?'favorites':'catalog';$('driveDialog').showModal();updateControls();break;
+  case 'play':togglePlay();break;
+  case 'prev':navigate(-1);break;
+  case 'next':navigate(1);break;
+ }
+});
+applyTheme();render();setStatus(status);refresh();
+</script>
+</body>
+</html>
