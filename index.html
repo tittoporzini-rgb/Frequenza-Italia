@@ -240,6 +240,9 @@ input[type=search]::-webkit-search-cancel-button{display:none}
 .reorder button:disabled{opacity:.25;cursor:default}
 .empty{border:1px dashed var(--line-2);padding:40px 26px;border-radius:var(--r-lg);color:var(--muted);text-align:center;font-size:.94rem;background:var(--panel)}
 .moreWrap{display:flex;justify-content:center;margin-top:22px}
+.deadNote{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding:12px 18px;border:1px dashed var(--line-2);border-radius:var(--r-md);background:var(--panel);color:var(--muted);font-size:.8rem;text-align:center}
+.deadNote button{border:0;background:transparent;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.deadNote button:hover{color:var(--ink,currentColor)}
 
 .footer{border-top:1px solid var(--line);margin-top:clamp(44px,6vw,76px);padding-block:24px 10px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.8rem}
 .footer a{color:var(--muted)}
@@ -472,6 +475,7 @@ kbd{font-family:var(--mono);font-size:.7rem;padding:.22rem .5rem;border:1px soli
     <div id="stationList" class="grid"></div>
     <p id="empty" class="empty" hidden></p>
     <div class="moreWrap"><button id="more" class="btn ghost" data-action="more" hidden>Mostra altre radio</button></div>
+    <p id="deadNote" class="deadNote" hidden><span id="deadCount"></span><button type="button" data-action="restoreStations">Ripristina</button></p>
   </section>
 
   <footer class="footer">
@@ -646,7 +650,7 @@ const national = [
  ['Radio Kiss Kiss','https://ice07.fluidstream.net/KissKiss.mp3','Pop'],
  ['Radio Subasio','https://icy.unitedradio.it/Subasio.mp3','Pop'],
  ['Radio Monte Carlo','https://icy.unitedradio.it/RMC.mp3','Pop'],
- ['Radiofreccia','https://streamingv2.shoutcast.com/radiofreccia','Rock']
+ ['Radiofreccia','https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S3160845/0tuSetc8UFkF/playlist_audio.m3u8','Rock']
 ];
 const nationalSites=[
  'rtl.it','rds.it','deejay.it','105.net','radioitalia.it',
@@ -657,6 +661,7 @@ const nationalSites=[
 const radio24Stream='https://ilsole24ore-radio.akamaized.net/hls/live/2035301/radio24/playlist.m3u8';
 const streamFixes={
   'rtl1025':['https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S97044836/tbbP8T1ZRPBL/playlist_audio.m3u8'],
+  'radiofreccia':['https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S3160845/0tuSetc8UFkF/playlist_audio.m3u8','https://streamingv2.shoutcast.com/radiofreccia'],
   'radio80':['https://sphera.fluidstream.eu/radio80.aac?FLID=1&aw_0_req.gdpr=true'],
   'lattemiele':['https://sr15.inmystream.it/stream/lattemiele'],
   'radiomariaitaly':['https://dreamsiteradiocp4.com/proxy/rmitaliamontecarlo?mp=/stream']
@@ -666,6 +671,36 @@ const seed = national.map(([name,url,genre],index)=>({id:'national-'+index,name,
 function isRadioArmisa(station){
   const id=station.uuid??station.stationuuid??station.id;
   return id==='b1201e74-2979-44d8-866e-02f74347a8d0'||/^(?:radio[\s._-]*)?armisa$/i.test(String(station.name??'').trim());
+}
+const deadStations=read('dead',{});
+function stationKey(station){return station?.id||('name:'+compact(station?.name||''));}
+function isDead(station){
+  const entry=deadStations[stationKey(station)];
+  if(!entry)return false;
+  return station?.type==='national'?!entry.fails||entry.fails<2:true;
+}
+function liveCatalog(){return catalog.filter(station=>!isDead(station));}
+function hideStation(station){
+  if(!station||offline())return;
+  const key=stationKey(station);
+  const entry=deadStations[key]||{name:station.name,fails:0};
+  entry.name=station.name;entry.fails=(entry.fails||0)+1;entry.at=Date.now();
+  deadStations[key]=entry;save('dead',deadStations);
+  if(favorites.some(item=>item.id===station.id)){favorites=favorites.filter(item=>item.id!==station.id);save('favorites',favorites);}
+  if(recent.some(item=>item.id===station.id)){recent=recent.filter(item=>item.id!==station.id);save('recent',recent);}
+  if(isDead(station)&&current?.id===station.id&&wanted)stop('L’emittente non si avvia: rimossa dall’elenco.');
+  if(isDead(station))toast('«'+station.name+'» non si avvia: rimossa dall’elenco.','info');
+  render();
+}
+function reviveStation(station){
+  const key=stationKey(station);
+  if(!deadStations[key])return;
+  delete deadStations[key];save('dead',deadStations);render();
+}
+function restoreStations(){
+  for(const key of Object.keys(deadStations))delete deadStations[key];
+  save('dead',deadStations);render();
+  toast('Emittenti rimosse ripristinate','radio');
 }
 function loadStationHistory(key){
   const stored=read(key,[]);
@@ -835,8 +870,8 @@ function queue(){
   return visibleStations();
 }
 function visibleStations(){
-  if(view==='favorites')return hydrate(favorites);
-  if(view==='recent')return hydrate(recent);
+  if(view==='favorites')return hydrate(favorites).filter(station=>!isDead(station));
+  if(view==='recent')return hydrate(recent).filter(station=>!isDead(station));
   const terms=normalize($('search').value).split(/\s+/).filter(Boolean);
   const category=$('category').value, genre=$('genre').value;
   const result=catalog.filter(station=>{
@@ -844,9 +879,10 @@ function visibleStations(){
     return (!category||category===station.type)&&(!genre||station.genre.includes(genre))&&terms.every(term=>searchable.includes(term));
   });
   const sort=$('sort').value;
-  if(sort==='name')return result.sort((a,b)=>a.name.localeCompare(b.name,'it'));
-  if(sort==='region')return result.sort((a,b)=>(a.region||'zzz').localeCompare(b.region||'zzz','it')||b.clicks-a.clicks);
-  return result.sort((a,b)=>b.clicks-a.clicks);
+  const live=result.filter(station=>!isDead(station));
+  if(sort==='name')return live.sort((a,b)=>a.name.localeCompare(b.name,'it'));
+  if(sort==='region')return live.sort((a,b)=>(a.region||'zzz').localeCompare(b.region||'zzz','it')||b.clicks-a.clicks);
+  return live.sort((a,b)=>b.clicks-a.clicks);
 }
 
 const coverPalettes=[
@@ -972,17 +1008,17 @@ function featuredCard(station,index){
   return el;
 }
 function renderStats(){
-  $('statStations').textContent=catalog.length.toLocaleString('it-IT');
+  $('statStations').textContent=liveCatalog().length.toLocaleString('it-IT');
   $('statFavorites').textContent=favorites.length;
   $('statRecent').textContent=recent.length;
   $('statUpdated').textContent=catalogUpdated?new Intl.DateTimeFormat('it-IT',{hour:'2-digit',minute:'2-digit'}).format(catalogUpdated):'—';
 }
 function renderFeatured(){
-  $('featured').replaceChildren(...catalog.slice(0,8).map(featuredCard));
+  $('featured').replaceChildren(...liveCatalog().slice(0,8).map(featuredCard));
 }
 let chipSignature='';
 function renderChips(){
-  const genres=[...new Set(catalog.flatMap(station=>station.genre))].sort((a,b)=>a.localeCompare(b,'it')).slice(0,12);
+  const genres=[...new Set(liveCatalog().flatMap(station=>station.genre))].sort((a,b)=>a.localeCompare(b,'it')).slice(0,12);
   const active=$('genre').value;
   const signature=genres.join('|')+'#'+active;
   if(signature===chipSignature)return;
@@ -1003,7 +1039,7 @@ function renderStatus(){
 function render(){
   stationById=new Map(catalog.map(station=>[station.id,station]));
   const previousGenre=$('genre').value;
-  const genres=[...new Set(catalog.flatMap(station=>station.genre))].sort((a,b)=>a.localeCompare(b,'it'));
+  const genres=[...new Set(liveCatalog().flatMap(station=>station.genre))].sort((a,b)=>a.localeCompare(b,'it'));
   $('genre').replaceChildren(new Option('Generi',''),...genres.map(genre=>new Option(genre,genre)));
   if(genres.includes(previousGenre))$('genre').value=previousGenre;
   renderChips();
@@ -1017,6 +1053,9 @@ function render(){
   $('empty').textContent={catalog:'Nessuna emittente corrisponde alla ricerca. Prova con un altro termine.',favorites:'Tocca il cuore accanto a una radio per salvarla qui.',recent:'Le radio ascoltate di recente appariranno qui.'}[view];
   $('stationList').replaceChildren(...stations.slice(0,limit).map(tile));
   $('more').hidden=stations.length<=limit;
+  const hiddenDead=view==='catalog'?catalog.filter(station=>isDead(station)).length:0;
+  $('deadNote').hidden=!hiddenDead;
+  $('deadCount').textContent=hiddenDead?hiddenDead+(hiddenDead===1?' emittente non funzionante rimossa':' emittenti non funzionanti rimosse'):'';
   $('clearSearch').hidden=!$('search').value;
   renderStats();
   renderFeatured();
@@ -1160,6 +1199,7 @@ function start(station){
 }
 function scheduleRetry(message){
   if(!prefs.reconnect||attempts>=3){
+    hideStation(current);
     stop(message+' Premi Riproduci per riprovare.',true);
     return;
   }
@@ -1190,10 +1230,12 @@ function failConnection(message,token,tryAnotherMode=false){
       const insecureId=current?.id;
       repairStreams().then(found=>{
         if(found||!wanted||live||current?.id!==insecureId)return;
+        hideStation(current);
         stop('Questa radio trasmette solo in HTTP e il browser la blocca sulle pagine protette. Apri il file sul computer per ascoltarla.',true);
       });
       return;
     }
+    hideStation(current);
     stop('Questa radio trasmette solo in HTTP e il browser la blocca sulle pagine protette. Apri il file sul computer per ascoltarla.',true);
     return;
   }
@@ -1248,7 +1290,7 @@ async function repairStreams(){
 function connect(){
   if(!wanted||!current)return;
   resetConnection();
-  if(!sources.length){stop('Indirizzo della diretta mancante.',true);return;}
+  if(!sources.length){hideStation(current);stop('Indirizzo della diretta mancante.',true);return;}
   if(offline()){
     if(prefs.reconnect)setStatus('Connessione Internet assente. Riconnessione al ritorno della rete.');
     else stop('Connessione Internet assente.',true);
@@ -1292,6 +1334,7 @@ function connect(){
     let lastTime=player.currentTime,lastProgress=performance.now(), firstProgress=0;
     clearInterval(progress);
     setStatus('● In diretta',true);
+    if(isDead(current))reviveStation(current);
     progress=setInterval(guarded(()=>{
       const now=performance.now(), time=player.currentTime;
       if(time>lastTime+.08||time<lastTime){
@@ -1568,6 +1611,7 @@ document.addEventListener('click',event=>{
     }
     case 'clearRecent':recent=[];save('recent',recent);render();toast('Cronologia recenti svuotata','info');break;
     case 'refresh':refresh();break;
+    case 'restoreStations':restoreStations();break;
     case 'settings':$('settingsDialog').showModal();break;
     case 'shortcuts':$('shortcutsDialog').showModal();break;
     case 'timer':updateTimer();$('timerDialog').showModal();break;
