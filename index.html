@@ -630,19 +630,19 @@ const prefs={theme:'dark',volume:72,reconnect:true,visualizer:true,...read('sett
 
 const types={national:'Nazionale',local:'Locale',web:'Web radio',theme:'Tematica'};
 const national = [
- ['RTL 102.5','https://streamingv2.shoutcast.com/rtl-1025','Pop'],
+ ['RTL 102.5','https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S97044836/tbbP8T1ZRPBL/playlist_audio.m3u8','Pop'],
  ['RDS','https://stream.rds.radio/audio/rds.stream_aac/playlist.m3u8','Pop'],
- ['Radio Deejay','https://streamcdnr1-4c4b867c89244861ac216426883d0ad1.msvdn.net/radiodeejay/radiodeejay/master_ma.m3u8','Pop'],
+ ['Radio Deejay','https://4c4b867c89244861ac216426883d1ad0.msvdn.net/radiodeejay/radiodeejay/master_ma.m3u8','Pop'],
  ['Radio 105','https://icy.unitedradio.it/Radio105.mp3','Pop'],
- ['Radio Italia','https://stream4.xdevel.com/audio0s976570-1511/stream/icecast.audio','Musica italiana'],
+ ['Radio Italia','https://radioitaliasmi.akamaized.net/hls/live/2093120/RISMI/master.m3u8','Musica italiana'],
  ['Rai Radio 1','https://icestreaming.rai.it/1.mp3','Notizie'],
  ['Rai Radio 2','https://icestreaming.rai.it/2.mp3','Pop'],
  ['Rai Radio 3','https://icestreaming.rai.it/3.mp3','Classica'],
  ['Virgin Radio','https://icy.unitedradio.it/Virgin.mp3','Rock'],
- ['R101','https://icy.unitedradio.it/R101.mp3','Pop'],
- ['Radio 24','https://shoutcast.radio24.it/stream.mp3','Notizie'],
- ['Radio Capital','https://streamcdnr1-4c4b867c89244861ac216426883d0ad1.msvdn.net/radiocapital/radiocapital/master_ma.m3u8','Pop'],
- ['m2o','https://streamcdnr1-4c4b867c89244861ac216426883d0ad1.msvdn.net/radiom2o/radiom2o/master_ma.m3u8','Dance'],
+ ['R101','https://icecast.unitedradio.it/r101','Pop'],
+ ['Radio 24','https://ilsole24ore-radio.akamaized.net/hls/live/2035301/radio24/playlist.m3u8','Notizie'],
+ ['Radio Capital','https://4c4b867c89244861ac216426883d1ad0.msvdn.net/radiocapital/radiocapital/master_ma.m3u8','Pop'],
+ ['m2o','https://4c4b867c89244861ac216426883d1ad0.msvdn.net/radiom2o/radiom2o/master_ma.m3u8','Dance'],
  ['Radio Kiss Kiss','https://ice07.fluidstream.net/KissKiss.mp3','Pop'],
  ['Radio Subasio','https://icy.unitedradio.it/Subasio.mp3','Pop'],
  ['Radio Monte Carlo','https://icy.unitedradio.it/RMC.mp3','Pop'],
@@ -654,6 +654,13 @@ const nationalSites=[
  'virginradio.it','r101.it','radio24.ilsole24ore.com','capital.it','m2o.it',
  'kisskiss.it','radiosubasio.it','radiomontecarlo.net','radiofreccia.it'
 ];
+const radio24Stream='https://ilsole24ore-radio.akamaized.net/hls/live/2035301/radio24/playlist.m3u8';
+const streamFixes={
+  'rtl1025':['https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S97044836/tbbP8T1ZRPBL/playlist_audio.m3u8'],
+  'radio80':['https://sphera.fluidstream.eu/radio80.aac?FLID=1&aw_0_req.gdpr=true'],
+  'lattemiele':['https://sr15.inmystream.it/stream/lattemiele'],
+  'radiomariaitaly':['https://dreamsiteradiocp4.com/proxy/rmitaliamontecarlo?mp=/stream']
+};
 const seed = national.map(([name,url,genre],index)=>({id:'national-'+index,name,url,alt:'',genre:[genre],tags:'',region:'',logo:'',type:'national',homepage:'https://www.'+nationalSites[index],codec:url.includes('.m3u8')?'HLS':'MP3',clicks:0}));
 
 function isRadioArmisa(station){
@@ -688,6 +695,7 @@ let current=null, audio=null, hls=null, wanted=false, live=false, attempts=0;
 let generation=0, watchdog, retry, progress, timerInterval, deadline=0;
 let status='Lettore in attesa', context, analyser, spectrum, canvasFrame;
 let sources=[], sourceIndex=0, modeIndex=0, lastSuccessful=null, currentGraph=null;
+let repairing=false, hlsFailed=false, repairCount=0;
 const lastGood=new Map(), withoutCors=new Set();
 const offline=()=>navigator.onLine===false;
 
@@ -728,13 +736,36 @@ function uniqueSources(list){
   for(const source of list)if(source&&!byUrl.has(source.url))byUrl.set(source.url,source);
   return [...byUrl.values()].slice(0,6);
 }
+function httpsTwin(url){return /^http:\/\//.test(url)?'https://'+url.slice(7):'';}
+function secureList(list){
+  const expanded=[];
+  for(const source of list){
+    if(!source)continue;
+    const twin=httpsTwin(source.url);
+    if(twin)expanded.push({...source,url:twin});
+    expanded.push(source);
+  }
+  const unique=uniqueSources(expanded);
+  if(location.protocol==='https:'){
+    const secure=unique.filter(source=>/^https:/.test(source.url));
+    if(secure.length)return secure;
+  }
+  return unique;
+}
+function stationFixes(station){
+  const list=[...(streamFixes[compact(station.name)]||[])];
+  if(/sole\s*24|radio\s*24\s*il\s*sole/i.test(station.name))list.push(radio24Stream);
+  return list.map(url=>mediaSource(url)).filter(Boolean);
+}
 function stationSources(station){
   const fallback=seed.find(item=>item.id===station.id);
-  return uniqueSources([
+  return secureList([
+    ...stationFixes(station),
     ...(station.sources||[]),
     mediaSource(station.url,station.codec==='HLS',station.codec),
     mediaSource(station.alt),
-    mediaSource(fallback?.url,fallback?.codec==='HLS',fallback?.codec)
+    mediaSource(fallback?.url,fallback?.codec==='HLS',fallback?.codec),
+    ...stationFixes(fallback||station)
   ]);
 }
 function fromApi(item){
@@ -1017,7 +1048,8 @@ function loadHls(){
   if(window.Hls)return Promise.resolve(true);
   hlsDownload??=Promise.any([
     'https://cdn.jsdelivr.net/npm/hls.js@1.6.15/dist/hls.min.js',
-    'https://unpkg.com/hls.js@1.6.15/dist/hls.min.js'
+    'https://unpkg.com/hls.js@1.6.15/dist/hls.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.6.15/hls.min.js'
   ].map(url=>new Promise((resolve,reject)=>{
     const script=document.createElement('script');
     const timeout=setTimeout(()=>{script.remove();reject(new Error('Timeout HLS'));},6500);
@@ -1028,7 +1060,7 @@ function loadHls(){
     };
     script.onerror=()=>{clearTimeout(timeout);script.remove();reject(new Error('Download HLS non riuscito'));};
     script.src=url;document.head.append(script);
-  }))).catch(()=>{hlsDownload=null;return false;});
+  }))).catch(()=>{hlsDownload=null;hlsFailed=true;return false;});
   return hlsDownload;
 }
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -1117,7 +1149,7 @@ function prepareContext(){
   }catch{}
 }
 function start(station){
-  current=station;wanted=true;attempts=0;sourceIndex=0;modeIndex=0;lastSuccessful=null;
+  current=station;wanted=true;attempts=0;sourceIndex=0;modeIndex=0;lastSuccessful=null;repairing=false;repairCount=0;
   sources=stationSources(station);
   const known=lastGood.get(station.id);
   if(known){
@@ -1153,7 +1185,65 @@ function failConnection(message,token,tryAnotherMode=false){
   sourceIndex++;
   if(sourceIndex<sources.length){connect();return;}
   sourceIndex=0;
+  if(location.protocol==='https:'&&sources.length&&sources.every(item=>/^http:/.test(item.url))){
+    if(attempts===0&&!repairing&&repairCount<2){
+      const insecureId=current?.id;
+      repairStreams().then(found=>{
+        if(found||!wanted||live||current?.id!==insecureId)return;
+        stop('Questa radio trasmette solo in HTTP e il browser la blocca sulle pagine protette. Apri il file sul computer per ascoltarla.',true);
+      });
+      return;
+    }
+    stop('Questa radio trasmette solo in HTTP e il browser la blocca sulle pagine protette. Apri il file sul computer per ascoltarla.',true);
+    return;
+  }
+  if(attempts===0&&!repairing&&repairCount<2){
+    const repairId=current?.id;
+    repairStreams().then(found=>{
+      if(found||!wanted||live||current?.id!==repairId)return;
+      scheduleRetry(message);
+    });
+    return;
+  }
   scheduleRetry(message);
+}
+async function repairStreams(){
+  if(repairing||!current)return false;
+  repairing=true;repairCount++;
+  const token=generation;
+  const query=current.name.replace(/[^\p{L}\p{N} ]/gu,' ').replace(/\s+/g,' ').trim().slice(0,48);
+  if(query.length<3){repairing=false;return false;}
+  setStatus('Cerco un flusso alternativo…');
+  try{
+    const list=await Promise.any(endpoints.map(async endpoint=>{
+      const response=await fetch(endpoint+'/json/stations/search?name='+encodeURIComponent(query)+'&limit=25&hidebroken=true',{signal:AbortSignal.timeout(6000)});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      return response.json();
+    }));
+    if(token!==generation||!wanted){repairing=false;return false;}
+    const known=new Set(sources.map(source=>source.url.replace(/^http:/,'')));
+    const extra=[];
+    for(const item of list){
+      for(const raw of [item.url_resolved,item.url]){
+        const source=mediaSource(raw,Number(item.hls)===1,String(item.codec||'').toUpperCase());
+        if(!source)continue;
+        if(location.protocol==='https:'&&source.url.startsWith('http:'))continue;
+        const key=source.url.replace(/^http:/,'');
+        if(known.has(key))continue;
+        known.add(key);extra.push(source);
+      }
+    }
+    if(!extra.length){repairing=false;return false;}
+    const added=uniqueSources(extra).slice(0,5);
+    sources=sources.concat(added);
+    sourceIndex=sources.length-added.length;
+    repairing=false;
+    connect();
+    return true;
+  }catch{
+    repairing=false;
+    return false;
+  }
 }
 function connect(){
   if(!wanted||!current)return;
@@ -1168,18 +1258,20 @@ function connect(){
   const player=new Audio();
   audio=player;player.preload='auto';player.volume=muted?0:prefs.volume/100;
   const nativeHls=Boolean(player.canPlayType('application/vnd.apple.mpegurl')||player.canPlayType('application/x-mpegURL'));
-  const libraryHls=Boolean(window.Hls?.isSupported());
-  if(source.hls&&!nativeHls&&!window.Hls){
+  const safariNative=nativeHls&&/^((?!chrome|chromium|android|edg|opr|crios).)*safari/i.test(navigator.userAgent);
+  if(source.hls&&!window.Hls&&!safariNative&&!hlsFailed){
     setStatus('Caricamento supporto HLS…');
     loadHls().then(loaded=>{
       if(token!==generation||!wanted)return;
-      if(loaded)connect();
+      if(loaded||nativeHls)connect();
       else failConnection('Supporto HLS non raggiungibile.',token);
     });
     return;
   }
-  const useHls=source.hls&&libraryHls&&(!nativeHls||modeIndex===0);
-  const nativeFallback=source.hls&&libraryHls&&nativeHls&&modeIndex===0;
+  const libraryHls=Boolean(window.Hls?.isSupported());
+  const preferNativeHls=source.hls&&nativeHls&&(safariNative||hlsFailed||!libraryHls);
+  const useHls=source.hls&&libraryHls&&!preferNativeHls&&modeIndex===0;
+  const nativeFallback=source.hls&&nativeHls&&!preferNativeHls&&modeIndex===0;
   if(source.hls&&!useHls&&!nativeHls){failConnection('Questo browser non riesce a riprodurre il flusso HLS.',token);return;}
   const graph=Boolean(context?.state==='running'&&prefs.visualizer&&(useHls||(!withoutCors.has(url)&&url.startsWith('https:'))));
   if(graph){
